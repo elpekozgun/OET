@@ -1,0 +1,324 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C6EC9B66-3839-4045-9168-95C70A46345B}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OET_UI</RootNamespace>
+    <AssemblyName>OET_UI</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Forms\frmAboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmAboutBox.Designer.cs">
+      <DependentUpon>frmAboutBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmStatus.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmStatus.Designer.cs">
+      <DependentUpon>frmStatus.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmCopyMove.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmCopyMove.Designer.cs">
+      <DependentUpon>frmCopyMove.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmGridSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmGridSettings.Designer.cs">
+      <DependentUpon>frmGridSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmGnuPlotInput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmGnuPlotInput.Designer.cs">
+      <DependentUpon>frmGnuPlotInput.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmUserInterface.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmUserInterface.Designer.cs">
+      <DependentUpon>frmUserInterface.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmEntity.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmEntity.Designer.cs">
+      <DependentUpon>frmEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmMesh.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmMesh.Designer.cs">
+      <DependentUpon>frmMesh.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\frmAboutBox.resx">
+      <DependentUpon>frmAboutBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmStatus.resx">
+      <DependentUpon>frmStatus.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmCopyMove.resx">
+      <DependentUpon>frmCopyMove.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmEntity.resx">
+      <DependentUpon>frmEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmGridSettings.resx">
+      <DependentUpon>frmGridSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmGnuPlotInput.resx">
+      <DependentUpon>frmGnuPlotInput.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmMesh.resx">
+      <DependentUpon>frmMesh.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmUserInterface.resx">
+      <DependentUpon>frmUserInterface.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GNUPlot\GNUPlot.csproj">
+      <Project>{756b7217-7b33-46fc-9983-25b0b0c39bac}</Project>
+      <Name>GNUPlot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OET_2DEngine\OET_Engine.csproj">
+      <Project>{f0442e1f-e853-4cb3-a57c-239a815be2ec}</Project>
+      <Name>OET_Engine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OET_Math\OET_Math.csproj">
+      <Project>{e0ce08ee-449b-4434-8f36-aed4e500c5d6}</Project>
+      <Name>OET_Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OET_Types\OET_Types.csproj">
+      <Project>{e05ea6ea-1857-4b74-ad59-321b348e6c1f}</Project>
+      <Name>OET_Types</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\open-3.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\big_camera.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\undo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\redo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OpenFile_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Redo_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Save_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Undo_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\GridUniform_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Run_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ExportScript_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ZoomIn_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ZoomOut_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ZoomToFit_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ActivityFinalNodeTool_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Camera_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CheckDot_6x_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Checkerboard_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ExportScript_16x1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Large_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Legend_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LineChart_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MapPolygonLayer_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NewFile_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NoncompilableFile_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Panel_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PanTool_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PenPathConvert_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Remove_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Run_blue_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SelectAllItems_inversed_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SnaptoGrid_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\StatusInfoTip_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Summary_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CopyItem_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MoveField_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FieldDeleted_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FieldCopy_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Cancel_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Checkmark_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\index.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Close_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Minimize_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Close_White_16x_24.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OET icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MoveField_16x_blue1.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
