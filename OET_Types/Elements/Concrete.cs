@@ -16,7 +16,6 @@ namespace OET_Types.Elements
 
         #endregion
 
-
         #region Private Fields
 
         private int         m_id;
