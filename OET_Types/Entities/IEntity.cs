@@ -20,7 +20,7 @@ namespace OET_Types.Entities
         List<PointF>    Points      { get; set; }
         int             ID          { get; set; }
         bool            Selected    { get; set; }
-        eEntityType     entityType  { get; }
+        eEntityType     EntityType  { get; }
         Color           Color       { get; set; }
     }
 }

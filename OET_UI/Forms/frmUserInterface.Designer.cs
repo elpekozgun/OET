@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmUserInterface));
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.txtStatus = new System.Windows.Forms.RichTextBox();
             this.BottomToolStripPanel = new System.Windows.Forms.ToolStripPanel();
             this.TopToolStripPanel = new System.Windows.Forms.ToolStripPanel();
             this.RightToolStripPanel = new System.Windows.Forms.ToolStripPanel();
@@ -81,14 +81,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.canvas)).BeginInit();
             this.SuspendLayout();
             // 
-            // richTextBox1
+            // txtStatus
             // 
-            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.richTextBox1.Location = new System.Drawing.Point(4, 467);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(104, 23);
-            this.richTextBox1.TabIndex = 21;
-            this.richTextBox1.Text = "";
+            this.txtStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtStatus.Location = new System.Drawing.Point(4, 467);
+            this.txtStatus.Name = "txtStatus";
+            this.txtStatus.ReadOnly = true;
+            this.txtStatus.Size = new System.Drawing.Size(104, 23);
+            this.txtStatus.TabIndex = 21;
+            this.txtStatus.Text = "";
             // 
             // BottomToolStripPanel
             // 
@@ -132,7 +133,7 @@
             // toolStripContainer1.ContentPanel
             // 
             this.toolStripContainer1.ContentPanel.Controls.Add(this.toolStrip1);
-            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(887, 35);
+            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(887, 10);
             this.toolStripContainer1.Location = new System.Drawing.Point(4, 0);
             this.toolStripContainer1.Name = "toolStripContainer1";
             this.toolStripContainer1.Size = new System.Drawing.Size(887, 35);
@@ -513,7 +514,7 @@
             this.Controls.Add(this.chkSnapPoint);
             this.Controls.Add(this.chkSnapGrid);
             this.Controls.Add(this.canvas);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.txtStatus);
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.SystemColors.ButtonFace;
@@ -533,7 +534,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox txtStatus;
         private System.Windows.Forms.CheckBox chkSnapGrid;
         private System.Windows.Forms.CheckBox chkSnapPoint;
         private System.Windows.Forms.ToolStripPanel BottomToolStripPanel;

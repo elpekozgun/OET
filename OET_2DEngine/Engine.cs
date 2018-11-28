@@ -18,7 +18,8 @@ namespace OET_2DEngine
         public static void GenerateNodesByEntity(GlobalDocument GD)
         {
             float threshold = MeshSize / 2 ;
-            List<Node> templist = new List<Node>();
+            List<Node> tempList = new List<Node>();
+            List<Node> steelList = new List<Node>();
             List<XYPT> polyPoints = new List<XYPT>();
             List<IEntity> tempEntity = new List<IEntity>();
 
@@ -28,28 +29,28 @@ namespace OET_2DEngine
             foreach (var entity in tempEntity)
             {
                 // CONCRETE
-                if (entity.entityType == eEntityType.area)
+                if (entity.EntityType == eEntityType.area)
                 {
                     Area area = (Area)entity;
-                    Polygon unmashedPoly = new Polygon();
+                    Polygon unmeshedPoly = new Polygon();
 
                     foreach (PointF point in area.Points)
                     {
-                        unmashedPoly.Points.Add(new XYPT(point.X, point.Y));
+                        unmeshedPoly.Points.Add(new XYPT(point.X, point.Y));
                     }
 
-                    Polygon meshedPoly = MeshPolygonSequential(unmashedPoly);
+                    Polygon meshedPoly = MeshPolygonSequential(unmeshedPoly);
 
                     foreach (XYPT pt in meshedPoly.Points)
                     {
                         Node node = new Node((float)pt.XX,(float)pt.YY , eMaterial.Concrete);
                         node.AreaIDList.Add(area.ID);
                         node.Thickness = area.Thickness;
-                        templist.Add(node);
+                        tempList.Add(node);
                     }
                 }
                 // STEEL
-                else if (entity.entityType == eEntityType.segment)
+                else if (entity.EntityType == eEntityType.segment)
                 {
                     Segment segment = (Segment)entity;
                     Line line = new Line();
@@ -58,9 +59,9 @@ namespace OET_2DEngine
                         line.Points.Add(new XYPT(point.X , point.Y));
                     }
                     line.SortPoints();
-                    var testSteelPoints = new List<Node>();
+                    //var testSteelPoints = new List<Node>();
                     XYPT pdrop;
-                    foreach (var pt in (templist.FindAll(x => x.Coord.YY <= line.BoundingPoints[1].y)
+                    foreach (var pt in (tempList.FindAll(x => x.Coord.YY <= line.BoundingPoints[1].y)
                                                 .FindAll(x => x.Coord.YY >= line.BoundingPoints[0].y)
                                                 .FindAll(x => x.Coord.XX <= line.BoundingPoints[1].x)
                                                 .FindAll(x => x.Coord.XX >= line.BoundingPoints[0].x)))
@@ -72,17 +73,18 @@ namespace OET_2DEngine
                             pt.RebarCount = segment.Count;
                             pt.RebarSize = segment.Size;
                             pt.SegmentIDList.Add(segment.ID);
-                            testSteelPoints.Add(pt);
+                            steelList.Add(pt);
+
+                            //testSteelPoints.Add(pt);
                         }
                     }
                     //KruskalReorder(ref templist);
                 }
             }
 
-            GD.Nodes = SortAndNumberNodeList(templist);
+            GD.Nodes = SortAndNumberNodeList(tempList);
         }
 
-        // Sort of Working But Check again. Slowing down the process.
         private static void KruskalReorder(ref List<Node> list)
         {
             foreach (var point in list)
@@ -154,7 +156,7 @@ namespace OET_2DEngine
             List<Dot> dotlist = new List<Dot>();
 
 
-            tempEntity.AddRange(GD.Entities.FindAll(x=>x.entityType == eEntityType.dot));
+            tempEntity.AddRange(GD.Entities.FindAll(x=>x.EntityType == eEntityType.dot));
             foreach (var entity in tempEntity)
             {
                 var dot = (Dot)entity;
@@ -286,9 +288,7 @@ namespace OET_2DEngine
             float dy = (float)(frame.EndNode.Coord.y - frame.StartNode.Coord.y);
 
             float fraction = frame.Length / horizon;
-
-
-
+            
             return false;
         }
 
@@ -333,15 +333,15 @@ namespace OET_2DEngine
         private static void SortEntities(ref List<IEntity> entities)
         {
             var tempList = new List<IEntity>();
-            foreach (Area entity in entities.FindAll(x => x.entityType == eEntityType.area))
+            foreach (Area entity in entities.FindAll(x => x.EntityType == eEntityType.area))
             {
                 tempList.Add(entity);
             }
-            foreach (Segment entity in entities.FindAll(x => x.entityType == eEntityType.segment))
+            foreach (Segment entity in entities.FindAll(x => x.EntityType == eEntityType.segment))
             {
                 tempList.Add(entity);
             }
-            foreach (Dot entity in entities.FindAll(x => x.entityType == eEntityType.dot))
+            foreach (Dot entity in entities.FindAll(x => x.EntityType == eEntityType.dot))
             {
                 tempList.Add(entity);
             }

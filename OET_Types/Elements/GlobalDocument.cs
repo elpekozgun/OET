@@ -31,7 +31,7 @@ namespace OET_Types.Elements
 
         public GlobalDocument()
         {
-            _nod            = 0.5f;
+            _nod            = 0.5f;                     
             _gridSize       = 10;
             _meshSize       = 10f;
             _horizon        = 14.2f;
@@ -89,6 +89,9 @@ namespace OET_Types.Elements
         
         #region Public Properties
 
+        /// <summary>
+        /// circle size used for drawing end points
+        /// </summary>
         public float            Nod
         {
             get
@@ -101,6 +104,7 @@ namespace OET_Types.Elements
                 _nod = value;
             }
         }
+
         public int              GridSize
         {
             get
@@ -190,7 +194,7 @@ namespace OET_Types.Elements
             get
             {
                 float a = 0;
-                foreach (Area entity in Entities.FindAll(x=>x.entityType == eEntityType.area))
+                foreach (Area entity in Entities.FindAll(x=>x.EntityType == eEntityType.area))
                 {
                     a += entity.AreaEntity;
                 }
@@ -353,7 +357,7 @@ namespace OET_Types.Elements
 
         public void GenerateInputBoundary()
         {
-            var dots = Entities.FindAll(x => x.entityType == eEntityType.dot);
+            var dots = Entities.FindAll(x => x.EntityType == eEntityType.dot);
 
             List <string> boundary = new List<string>();
 
@@ -438,5 +442,6 @@ namespace OET_Types.Elements
         }
 
         #endregion
+
     }
 }

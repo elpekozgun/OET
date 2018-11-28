@@ -32,6 +32,7 @@ namespace OET_Math
         #region Public Fields and Properties
 
         public List<Polygon> InnerPolygons;
+
         public List<XYPT> Points
         {
             get
@@ -39,6 +40,7 @@ namespace OET_Math
                 return m_points;
             }
         }
+
         public List<XYPT> BoundingPoints
         {
             get
@@ -65,6 +67,7 @@ namespace OET_Math
                 return ret;
             }
         }
+
         public bool IsCCW { get { return (PolygonArea() > 0); } }
         public bool IsCWW { get { return (PolygonArea() < 0); } }
 
@@ -275,8 +278,8 @@ namespace OET_Math
             return true;
         }
 
-        public static float CrossProductLength(float Ax, float Ay,
-    float Bx, float By, float Cx, float Cy)
+        public static float CrossProductLength(
+            float Ax, float Ay, float Bx,float By, float Cx, float Cy)
         {
             // Get the vectors' coordinates.
             float BAx = Ax - Bx;

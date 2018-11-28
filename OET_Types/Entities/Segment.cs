@@ -60,7 +60,7 @@ namespace OET_Types.Entities
                 _ID = value;
             }
         }
-        public eEntityType entityType
+        public eEntityType EntityType
         {
             get
             {

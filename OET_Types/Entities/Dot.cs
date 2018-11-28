@@ -31,7 +31,7 @@ namespace OET_Types.Entities
 
         #region Public Properties
 
-        public eEntityType entityType
+        public eEntityType EntityType
         {
             get
             {

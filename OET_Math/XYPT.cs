@@ -826,6 +826,19 @@ namespace OET_Math
             }
             return 0;
         }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -987908381;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + x.GetHashCode();
+            hashCode = hashCode * -1521134295 + y.GetHashCode();
+            hashCode = hashCode * -1521134295 + XX.GetHashCode();
+            hashCode = hashCode * -1521134295 + YY.GetHashCode();
+            hashCode = hashCode * -1521134295 + minOfXY.GetHashCode();
+            hashCode = hashCode * -1521134295 + maxOfXY.GetHashCode();
+            return hashCode;
+        }
     }
 
 }

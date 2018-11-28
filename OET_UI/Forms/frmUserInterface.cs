@@ -45,6 +45,7 @@ namespace OET_UI
         move = 3,
         pan = 4
     }
+
     public partial class frmUserInterface : Form
     {
         #region Private Fields
@@ -149,7 +150,6 @@ namespace OET_UI
             canvas.BackColor = Color.FromArgb(255, 30, 30, 30);
             this.KeyPreview = true;
             chkSnapGrid.Checked = true;
-            ZoomExtent();
 
             toolStrip1.BackColor = Color.FromArgb(255, 60, 60, 60);
             toolStrip1.Renderer = new MySR();
@@ -178,7 +178,7 @@ namespace OET_UI
             }
             for (float j = 0 ; j <= truncHeight; j += grid)
             {
-                g.DrawLine(pen, 0 / 2 , j, truncWidth, j);
+                g.DrawLine(pen, 0 , j, truncWidth, j);
             }
         }
 
@@ -206,16 +206,16 @@ namespace OET_UI
             if (GD.Entities != null)
             {
                 SortEntities();
-                foreach (Area area in GD.Entities.FindAll(x => x.entityType == eEntityType.area))
+                foreach (Area area in GD.Entities.FindAll(x => x.EntityType == eEntityType.area))
                 {
                     g.FillPolygon(new SolidBrush(area.Color), area.Points.ToArray());
                     g.DrawPolygon(new Pen(Color.FromArgb(160, 204, 50, 50), 0.2f * GD.GridSize / 10), area.Points.ToArray());
                 }
-                foreach (Segment segment in GD.Entities.FindAll(x => x.entityType == eEntityType.segment))
+                foreach (Segment segment in GD.Entities.FindAll(x => x.EntityType == eEntityType.segment))
                 {
                     g.DrawLine(new Pen(segment.Color, 0.2f * GD.GridSize / 10), segment.Points[0], segment.Points[1]);
                 }
-                foreach (Dot dot in GD.Entities.FindAll(x => x.entityType == eEntityType.dot))
+                foreach (Dot dot in GD.Entities.FindAll(x => x.EntityType == eEntityType.dot))
                 {
                     if (dot.XRestrained ||dot.YRestrained)
                     {
@@ -239,7 +239,7 @@ namespace OET_UI
         {
             foreach (IEntity entity in GD.Entities)
             {
-                if (entity.entityType != eEntityType.dot)
+                if (entity.EntityType != eEntityType.dot)
                 {
                     foreach (PointF corner in entity.Points)
                     {
@@ -272,7 +272,7 @@ namespace OET_UI
 
             foreach (var entity in GD.Entities.FindAll(x=>x.Selected == true))
             {
-                if (entity.entityType == eEntityType.area || entity.entityType == eEntityType.segment)
+                if (entity.EntityType == eEntityType.area || entity.EntityType == eEntityType.segment)
                 {
                     g.DrawPolygon(select_pen, entity.Points.ToArray());
                     foreach (PointF corner in entity.Points)
@@ -284,7 +284,7 @@ namespace OET_UI
                         g.DrawEllipse(new Pen(Color.White, 0.4f), rect);
                     }
                 }
-                else if (entity.entityType == eEntityType.dot)
+                else if (entity.EntityType == eEntityType.dot)
                 {
                     RectangleF rect = new RectangleF(
                         entity.Points[0].X - Math.Max(GD.Nod * GD.GridSize / 4, 0.5f), entity.Points[0].Y - Math.Max(GD.Nod * GD.GridSize / 4, 0.5f),
@@ -331,15 +331,18 @@ namespace OET_UI
 
         private void DrawCurrentCoordinate(Graphics g, PointF mouse)
         {
-            g.TranslateTransform(-curX - width / 2 - 2, curY - height / 2 + 1);
-            g.TranslateTransform(0, height);
-            g.ScaleTransform(1 / zoom, -1 / zoom);
+            txtStatus.Text = $"X: {mouse.X.ToString("#,0")} ;Y: {mouse.Y.ToString("#,0")}";
 
-            var temp = new PointF(mouse.X,mouse.Y);
-            WorldToScreen(ref temp);
 
-            string location = $"X: {mouse.X.ToString("#,0")} ;Y: {mouse.Y.ToString("#,0")}";
-            g.DrawString(location, DefaultFont, Brushes.Aqua, temp.X + GD.GridSize , temp.Y );
+            //g.TranslateTransform(-curX - width / 2 - 2, curY - height / 2 + 1);
+            //g.TranslateTransform(0, height);
+            //g.ScaleTransform(1 / zoom, -1 / zoom);
+
+            //var temp = new PointF(mouse.X,mouse.Y);
+            //WorldToScreen(ref temp);
+
+            //string location = $"X: {mouse.X.ToString("#,0")} ;Y: {mouse.Y.ToString("#,0")}";
+            //g.DrawString(location, DefaultFont, Brushes.Aqua, temp.X + GD.GridSize , temp.Y );
         }
 
         private void SnapToGrid(ref PointF pt)
@@ -432,7 +435,7 @@ namespace OET_UI
             {
                 foreach (IEntity entity in GD.Entities)
                 {
-                    if (entity.entityType == eEntityType.area)
+                    if (entity.EntityType == eEntityType.area)
                     {
                         for (int i = 0; i < entity.Points.Count; i++)
                         {
@@ -446,7 +449,7 @@ namespace OET_UI
                                 objectOver = eObjectOver.nothing;
                         }
                     }
-                    if (entity.entityType == eEntityType.dot)
+                    if (entity.EntityType == eEntityType.dot)
                     {
                         if (FindDistanceToPointSquared(entity.Points[0], mousePoint) < (GD.Nod + 1.5) * (GD.Nod + 1.5))
                         {
@@ -457,7 +460,7 @@ namespace OET_UI
                         else
                             objectOver = eObjectOver.nothing;
                     }
-                    if (entity.entityType == eEntityType.segment)
+                    if (entity.EntityType == eEntityType.segment)
                     {
                         PointF closest;
                         if (FindDistanceToSegmentSquared(mousePoint, entity.Points[0], entity.Points[1], out closest) < (GD.Nod + 1) * (GD.Nod + 1))
@@ -667,7 +670,7 @@ namespace OET_UI
                 {
                     if (selecteds[0].GetType() == typeof(Area))
                     {
-                        foreach (Area area in selecteds.FindAll(x => x.entityType == eEntityType.area))
+                        foreach (Area area in selecteds.FindAll(x => x.EntityType == eEntityType.area))
                         {
                             area.Color = frmEntityProp.Area.Color;
                             area.Thickness = frmEntityProp.Area.Thickness;
@@ -675,7 +678,7 @@ namespace OET_UI
                     }
                     else if (selecteds[0].GetType() == typeof(Segment))
                     {
-                        foreach (Segment segment in selecteds.FindAll(x => x.entityType == eEntityType.segment))
+                        foreach (Segment segment in selecteds.FindAll(x => x.EntityType == eEntityType.segment))
                         {
                             segment.Color = frmEntityProp.Segment.Color;
                             segment.Size = frmEntityProp.Segment.Size;
@@ -684,7 +687,7 @@ namespace OET_UI
                     }
                     else if (selecteds[0].GetType() == typeof(Dot))
                     {
-                        foreach (Dot dot in selecteds.FindAll(x => x.entityType == eEntityType.dot))
+                        foreach (Dot dot in selecteds.FindAll(x => x.EntityType == eEntityType.dot))
                         {
                             dot.Color = frmEntityProp.Dot.Color;
                             dot.LoadX = frmEntityProp.Dot.LoadX;
@@ -708,7 +711,7 @@ namespace OET_UI
             
             if (newSegment.Points.Count > 1)
             {
-                newSegment.ID = GD.Entities.FindAll(x => x.entityType == eEntityType.segment).Count + 1;               
+                newSegment.ID = GD.Entities.FindAll(x => x.EntityType == eEntityType.segment).Count + 1;               
                 GD.Entities.Add(newSegment);
                 newSegment = new Segment(new List<PointF>());
             }
@@ -728,7 +731,7 @@ namespace OET_UI
         {
             if (newArea == null)
                 newArea = new Area(new List<PointF>());
-            newArea.ID = GD.Entities.FindAll(x => x.entityType == eEntityType.area).Count + 1;
+            newArea.ID = GD.Entities.FindAll(x => x.EntityType == eEntityType.area).Count + 1;
             newArea.Thickness = frmEntityProp.Area.Thickness;
             newArea.Color = frmEntityProp.Area.Color;
             newArea.Points.Add(pt);
@@ -740,7 +743,7 @@ namespace OET_UI
 
             foreach (var copy in Copylist)
             {
-                if (copy.entityType == eEntityType.area)
+                if (copy.EntityType == eEntityType.area)
                 {
                     Area temp = (Area)copy;
                     for (int i = 1; i <= count; i++)
@@ -752,12 +755,12 @@ namespace OET_UI
                         }
                         a.Thickness = temp.Thickness;
                         a.Color = temp.Color;
-                        a.ID = GD.Entities.FindAll(x => x.entityType == eEntityType.area).Count + 1;
+                        a.ID = GD.Entities.FindAll(x => x.EntityType == eEntityType.area).Count + 1;
                         GD.Entities.Add(a);
                         a.Selected = false;
                     }
                 }
-                else if (copy.entityType == eEntityType.segment)
+                else if (copy.EntityType == eEntityType.segment)
                 {
                     Segment temp = (Segment)copy;
                     for (int i = 1; i <= count; i++)
@@ -770,12 +773,12 @@ namespace OET_UI
                         a.Count = temp.Count;
                         a.Size = temp.Size;
                         a.Color = temp.Color;
-                        a.ID = GD.Entities.FindAll(x => x.entityType == eEntityType.segment).Count + 1;
+                        a.ID = GD.Entities.FindAll(x => x.EntityType == eEntityType.segment).Count + 1;
                         GD.Entities.Add(a);
                         a.Selected = false;
                     }
                 }
-                else if (copy.entityType == eEntityType.dot)
+                else if (copy.EntityType == eEntityType.dot)
                 {
                     Dot temp = (Dot)copy;
                     for (int i = 1; i <= count; i++)
@@ -788,7 +791,7 @@ namespace OET_UI
                         a.XRestrained = temp.XRestrained;
                         a.YRestrained = temp.YRestrained;
                         a.Color = temp.Color;
-                        a.ID = GD.Entities.FindAll(x => x.entityType == eEntityType.dot).Count + 1;
+                        a.ID = GD.Entities.FindAll(x => x.EntityType == eEntityType.dot).Count + 1;
                         GD.Entities.Add(a);
                         a.Selected = false;
                     }
@@ -812,15 +815,15 @@ namespace OET_UI
         private void SortEntities()
         {
             var tempList = new List<IEntity>();
-            foreach (Dot entity in GD.Entities.FindAll(x => x.entityType == eEntityType.dot))
+            foreach (Dot entity in GD.Entities.FindAll(x => x.EntityType == eEntityType.dot))
             {
                 tempList.Add(entity);
             }
-            foreach (Segment entity in GD.Entities.FindAll(x => x.entityType == eEntityType.segment))
+            foreach (Segment entity in GD.Entities.FindAll(x => x.EntityType == eEntityType.segment))
             {
                 tempList.Add(entity);
             }
-            foreach (Area entity in GD.Entities.FindAll(x => x.entityType == eEntityType.area))
+            foreach (Area entity in GD.Entities.FindAll(x => x.EntityType == eEntityType.area))
             {
                 tempList.Add(entity);
             }
@@ -923,16 +926,16 @@ namespace OET_UI
                 Task mesh = Task.Factory.StartNew(() => Mesh());
 
                 timer.Interval = 1000;
-                timer.Tick += new EventHandler(this.t_Tick);
+                timer.Tick += new EventHandler(this.T_Tick);
                 timer.Start();
 
             }
         }
 
-        private void t_Tick(object sender, EventArgs e)
+        private void T_Tick(object sender, EventArgs e)
         {
             time++;
-            richTextBox1.Text = "meshing: " + time;
+            txtStatus.Text = "meshing: " + time;
         }
 
         private void SaveCommand()
@@ -940,7 +943,7 @@ namespace OET_UI
             SaveFileDialog saveDialog = new SaveFileDialog();
             saveDialog.ValidateNames = true;
 
-            saveDialog.Filter = " oet (.oet)| *.oet";
+            saveDialog.Filter = " oet (*.oet)| *.oet";
             saveDialog.DefaultExt = "oet";
 
             if (saveDialog.ShowDialog() == DialogResult.OK)
@@ -961,7 +964,7 @@ namespace OET_UI
             OpenFileDialog openDialog = new OpenFileDialog();
             openDialog.ValidateNames = true;
 
-            openDialog.Filter = " oet (.OET)| *.oet | All Files (.*)| *.*";
+            openDialog.Filter = " oet (.oet)| *.oet | All Files (.*)| *.*";
 
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
@@ -1052,9 +1055,9 @@ namespace OET_UI
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 command = frm.Command;
-            
 
-            string Pgm = @"C:\Program Files (x86)\gnuplot\bin\gnuplot.exe";
+            string Pgm = @"C:\Program Files\gnuplot\bin\gnuplot.exe";
+            //string Pgm = @"C:\Program Files (x86)\gnuplot\bin\gnuplot.exe";
             Process extPro = new Process();
             extPro.StartInfo.FileName = Pgm;
             extPro.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -1095,7 +1098,7 @@ namespace OET_UI
             statusForm.richTextBox1.AppendText("Frame Count: " + GD.Frames.Count.ToString() + "\n");
 
             timer.Stop();
-            timer.Tick -= t_Tick;
+            timer.Tick -= T_Tick;
             time = 0;
 
             statusForm.ShowDialog();

@@ -20,7 +20,7 @@ namespace OET_UI
             this.KeyPreview = true;
             this.TopMost = true;
 
-            switch (entity.entityType)
+            switch (entity.EntityType)
             {
                 case eEntityType.area:
                     {

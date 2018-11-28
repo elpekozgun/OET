@@ -46,7 +46,6 @@
     <Compile Include="Elements\IElement.cs" />
     <Compile Include="Elements\Node.cs" />
     <Compile Include="Elements\Rebar.cs" />
-    <Compile Include="Elements\Structure.cs" />
     <Compile Include="Elements\Load.cs" />
     <Compile Include="Entities\Area.cs" />
     <Compile Include="Entities\Dot.cs" />

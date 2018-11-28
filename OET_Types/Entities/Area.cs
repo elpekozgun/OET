@@ -71,7 +71,7 @@ namespace OET_Types.Entities
                 _thickness = value;
             }
         }
-        public eEntityType entityType
+        public eEntityType EntityType
         {
             get
             {

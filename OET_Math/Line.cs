@@ -19,6 +19,7 @@ namespace OET_Math
         {
             m_points = points;
         }
+
         public Line(XYPT pt1 ,XYPT pt2)
         {
             m_points = new List<XYPT>() { pt1, pt2 };

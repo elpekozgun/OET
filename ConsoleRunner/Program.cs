@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System;
-using OET_Types.Structure;
 using OET_Math;
 namespace ConsoleRunner
 {
