@@ -14,6 +14,7 @@ using System.Diagnostics;
 using GNUPlot;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using OET_UI.Command;
 
 namespace OET_UI
 {
@@ -43,7 +44,8 @@ namespace OET_UI
         draw = 1,
         copy = 2,
         move = 3,
-        pan = 4
+        pan = 4,
+        edit = 5
     }
 
     public partial class frmUserInterface : Form
@@ -52,7 +54,7 @@ namespace OET_UI
        
         private float               zoom                =       1;
         private float               maxzoom             =       20f;
-        private float               minzoom             =       0.2f;
+        private float               minzoom             =       0.02f;
         private float               prevX               =       0;
         private float               PrevY               =       0;
         private float               curX                =       0;
@@ -84,7 +86,13 @@ namespace OET_UI
         private frmEntity           frmEntityProp;
         private frmStatus           statusForm;
         private int                 time = 0;
-        private System.Windows.Forms.Timer timer; 
+        private System.Windows.Forms.Timer timer;
+
+        private Stack<GlobalDocument> undoStack;
+        private Stack<GlobalDocument> redoStack;
+
+        string olmPath;
+        string gnuPlotPath;
 
         #endregion
 
@@ -93,14 +101,20 @@ namespace OET_UI
         public frmUserInterface()
         {
             GD = new GlobalDocument();
+            undoStack = new Stack<GlobalDocument>();
+            redoStack = new Stack<GlobalDocument>();
+            undoStack.Push(GD.SnapShot());
+            redoStack.Push(GD.SnapShot());
 
-            timer= new System.Windows.Forms.Timer();
-
+            timer = new System.Windows.Forms.Timer();
 
             InitializeComponent();
             PrepareUI();
             SubscribeEvents();
             ZoomExtent();
+
+            olmPath = @"C:\Users\ozgun\Desktop\OneDrive\OET\OET\OLM\olm\olm\Release\olm.exe";
+            gnuPlotPath = @"C:\Program Files (x86)\gnuplot\bin\gnuplot.exe";        //msi
         }
 
         private void SubscribeEvents()
@@ -135,16 +149,17 @@ namespace OET_UI
             btnTsGridSettings.Click         +=  BtnTsGridSettings_Click;
             btnTsOlm.Click                  +=  BtnTsOlm_Click;
             btnTsGnuPlot.Click              +=  BtnTsGnuPlot_Click;
-            cmbUnits.SelectedIndexChanged   += CmbUnits_SelectedIndexChanged;
-
+            cmbUnits.SelectedIndexChanged   +=  CmbUnits_SelectedIndexChanged;
+            btnTsUndo.Click                 +=  BtnTsUndo_Click;
+            btnTsRedo.Click                 +=  BtnTsRedo_Click;
             this.KeyDown                    +=  FrmUserInterface_KeyDown;
-
         }
 
         private void PrepareUI()
         {
             DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.WindowState = FormWindowState.Maximized;
             CenterToScreen();
             this.BackColor = Color.FromArgb(255, 60, 60, 60);
             canvas.BackColor = Color.FromArgb(255, 30, 30, 30);
@@ -157,7 +172,7 @@ namespace OET_UI
             cmbUnits.Items.Add(eUnit.kN_m.ToString().Replace('_', '.'));
             cmbUnits.Items.Add(eUnit.N_mm.ToString().Replace('_', '.'));
             cmbUnits.SelectedItem = GD.Unit.ToString().Replace('_','.');
-            
+            ZoomExtent();
         }
 
         #endregion
@@ -186,18 +201,18 @@ namespace OET_UI
         {
             Brush red   =   new SolidBrush(Color.Red);
             Brush green =   new SolidBrush(Color.LimeGreen);
-            Pen penX    =   new Pen(red, 0.04f * GD.GridSize);
-            Pen penY    =   new Pen(green, 0.04f * GD.GridSize );
+            Pen penX    =   new Pen(red, 0.02f * GD.GridSize);
+            Pen penY    =   new Pen(green, 0.02f * GD.GridSize );
 
             //draw X arm of origin.
             g.DrawLine(penX, 0, 0, GD.GridSize, 0);
-            g.DrawLine(penX, GD.GridSize, 0, (float)GD.GridSize - (float)GD.GridSize / 5,   (float)GD.GridSize / 7);
-            g.DrawLine(penX, GD.GridSize, 0, (float)GD.GridSize - (float)GD.GridSize / 5, - (float)GD.GridSize / 7);
+            g.DrawLine(penX, (1.007f) * GD.GridSize, -0.007f * GD.GridSize, (float)GD.GridSize - (float)GD.GridSize / 8,   (float)GD.GridSize / 8);
+            g.DrawLine(penX, (1.007f) * GD.GridSize,  0.007f * GD.GridSize, (float)GD.GridSize - (float)GD.GridSize / 8, - (float)GD.GridSize / 8);
 
             //draw Y arm of origin.
             g.DrawLine(penY, 0,0, 0, GD.GridSize);
-            g.DrawLine(penY, 0, GD.GridSize, (float)-GD.GridSize / 7, (float)GD.GridSize - (float)GD.GridSize / 5);
-            g.DrawLine(penY, 0, GD.GridSize, (float)+GD.GridSize / 7, (float)GD.GridSize - (float)GD.GridSize / 5);
+            g.DrawLine(penY,  0.007f * GD.GridSize, (1.007f) * GD.GridSize, (float)-GD.GridSize / 8, (float)GD.GridSize - (float)GD.GridSize / 8);
+            g.DrawLine(penY, -0.007f * GD.GridSize, (1.007f) * GD.GridSize, (float)+GD.GridSize / 8, (float)GD.GridSize - (float)GD.GridSize / 8);
 
         }
 
@@ -244,10 +259,10 @@ namespace OET_UI
                     foreach (PointF corner in entity.Points)
                     {
                         RectangleF rect = new RectangleF(
-                            (corner.X - Math.Max(GD.Nod * GD.GridSize / 5, 0.2f)), (corner.Y - Math.Max(GD.Nod * GD.GridSize / 5,0.2f)),
+                            (corner.X - Math.Max(GD.Nod * GD.GridSize / 5, 0.2f)), (corner.Y - Math.Max(GD.Nod * GD.GridSize / 5, 0.2f)),
                             (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.2f)), (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.2f)));
                         g.FillEllipse(Brushes.Yellow, rect);
-                        g.DrawEllipse(new Pen(Color.OrangeRed,  0.1f * GD.GridSize / 5), rect);
+                        g.DrawEllipse(new Pen(Color.OrangeRed, 0.1f * GD.GridSize / 5), rect);
                     }
                 }
             }
@@ -258,30 +273,43 @@ namespace OET_UI
             if (action == eAction.draw)
             {
                 RectangleF rect = new RectangleF(
-                (mousePos.X - Math.Max(GD.Nod * GD.GridSize / 4, 0.4f)), (mousePos.Y - Math.Max(GD.Nod * GD.GridSize / 4, 0.4f)),
-                (2 * Math.Max(GD.Nod * GD.GridSize / 4, 0.4f))  , (2 * Math.Max(GD.Nod * GD.GridSize / 4, 0.4f)) );
+                (mousePos.X - Math.Max(GD.Nod * GD.GridSize / 4, 0.35f)), (mousePos.Y - Math.Max(GD.Nod * GD.GridSize / 4, 0.35f)),
+                (2 * Math.Max(GD.Nod * GD.GridSize / 4, 0.35f))  , (2 * Math.Max(GD.Nod * GD.GridSize / 4, 0.35f)) );
                 g.FillEllipse(new SolidBrush(Color.FromArgb(180,240,230,255)), rect);
-                g.DrawEllipse(new Pen(Color.FromArgb(255, 153, 51, 255), 0.4f), rect);
+                g.DrawEllipse(new Pen(Color.FromArgb(255, 153, 51, 255), 0.1f), rect);
             }
         }
 
         private void DrawSelected(Graphics g)
         {
-            Pen select_pen = new Pen(Color.White, 0.4f * GD.GridSize / 10);
+            Pen select_pen = new Pen(Color.White, 0.3f * GD.GridSize / 10);
             select_pen.DashStyle = DashStyle.Dash;
 
             foreach (var entity in GD.Entities.FindAll(x=>x.Selected == true))
             {
-                if (entity.EntityType == eEntityType.area || entity.EntityType == eEntityType.segment)
+                if (entity.EntityType == eEntityType.segment)
+                {
+                    g.DrawLine(select_pen, entity.Points[0], entity.Points[1]);
+                    foreach (PointF corner in entity.Points)
+                    {
+                        RectangleF rect = new RectangleF(
+                            (corner.X - Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)), (corner.Y - Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)),
+                            (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)), (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)));
+                        g.FillEllipse(Brushes.White, rect);
+                        g.DrawEllipse(new Pen(Color.White, GD.Nod), rect);
+                    }
+
+                }
+                else if (entity.EntityType == eEntityType.area)
                 {
                     g.DrawPolygon(select_pen, entity.Points.ToArray());
                     foreach (PointF corner in entity.Points)
                     {
                         RectangleF rect = new RectangleF(
-                            (corner.X - Math.Max(GD.Nod * GD.GridSize / 5, 0.4f)), (corner.Y - Math.Max(GD.Nod * GD.GridSize / 5, 0.4f)),
-                            (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.4f)), (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.4f)));
+                            (corner.X - Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)), (corner.Y - Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)),
+                            (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)), (2 * Math.Max(GD.Nod * GD.GridSize / 5, 0.35f)));
                         g.FillEllipse(Brushes.White, rect);
-                        g.DrawEllipse(new Pen(Color.White, 0.4f), rect);
+                        g.DrawEllipse(new Pen(Color.White, GD.Nod), rect);
                     }
                 }
                 else if (entity.EntityType == eEntityType.dot)
@@ -598,8 +626,9 @@ namespace OET_UI
             float MoveWidth = zoomRectangle.Width * ratio;
             float MoveHeight = zoomRectangle.Height * ratio;
 
-            float x = zoomRectangle.Location.X + MoveWidth / 2;
-            float y = zoomRectangle.Location.Y + MoveHeight / 2;
+            float x = zoomRectangle.Location.X + zoomRectangle.Width / 2 - MoveWidth / 2;  /* + MoveWidth;*/
+            float y = zoomRectangle.Location.Y + zoomRectangle.Height / 2 - MoveWidth /2   ; /* + MoveHeight;*/
+            ;
 
             float oldimagex = (x / oldzoom);  
             float oldimagey = (y / oldzoom);
@@ -658,6 +687,7 @@ namespace OET_UI
         {
             List<IEntity> selecteds = new List<IEntity>();
             selecteds.AddRange(GD.Entities.FindAll(x => x.Selected == true));
+            selectedCount = selecteds.Count;
             if (selectedCount != 0)
             {
                 frmEntityProp = new frmEntity(selecteds[0]);
@@ -714,6 +744,7 @@ namespace OET_UI
                 newSegment.ID = GD.Entities.FindAll(x => x.EntityType == eEntityType.segment).Count + 1;               
                 GD.Entities.Add(newSegment);
                 newSegment = new Segment(new List<PointF>());
+                undoStack.Push(GD.SnapShot());
             }
         }
 
@@ -725,6 +756,7 @@ namespace OET_UI
 
             GD.Entities.Add(newDot);
             newDot = new Dot(pt);
+            undoStack.Push(GD.SnapShot());
         }
 
         private void AddArea(PointF pt)
@@ -830,6 +862,12 @@ namespace OET_UI
             GD.Entities = tempList;
         }
 
+        private void SelectAllCommand()
+        {
+            action = eAction.idle;
+            GD.Entities.ForEach(x => x.Selected = true);
+        }
+
         private void ZoomExtent()
         {
             var oldzoom = zoom;
@@ -837,13 +875,13 @@ namespace OET_UI
             var xRatio = GD.GridWidth * zoom / canvas.Width;
             var yRatio = GD.GridHeight * zoom / canvas.Height;
 
-            if (xRatio != 0 || yRatio != 0)
-                zoom = oldzoom* 0.8f / Math.Max(Math.Abs(xRatio), Math.Abs(yRatio));
+            if (canvas.Height != 0 || canvas.Width != 0)
+                zoom = oldzoom * 0.9f / Math.Max(Math.Abs(xRatio), Math.Abs(yRatio));
             else
                 zoom = 1;
 
             curX = (-canvas.Width / 2 + canvas.Width / (2 * zoom) - GD.GridWidth / 2);
-            curY = (-canvas.Height / 2 + GD.GridHeight/0.9f); ;
+            curY = (-canvas.Height / 2) + GD.GridHeight * 1.05f; //(-canvas.Height / 2 ); ;
 
         }
 
@@ -864,6 +902,7 @@ namespace OET_UI
                 }
 
                 canvas.Invalidate();
+                undoStack.Push(GD.SnapShot());
             }
         }
 
@@ -887,6 +926,7 @@ namespace OET_UI
 
 
                 canvas.Invalidate();
+                undoStack.Push(GD.SnapShot());
             }
         }
 
@@ -910,6 +950,12 @@ namespace OET_UI
                 inputBox.Dispose();
                 inputBox = null;
             }
+        }
+
+        private void DeleteCommand()
+        {
+            GD.Entities.RemoveAll(x => x.Selected == true);
+            undoStack.Push(GD.SnapShot());
         }
 
         private void MeshCommand()
@@ -964,7 +1010,7 @@ namespace OET_UI
             OpenFileDialog openDialog = new OpenFileDialog();
             openDialog.ValidateNames = true;
 
-            openDialog.Filter = " oet (.oet)| *.oet | All Files (.*)| *.*";
+            openDialog.Filter = "OET Files (*.oet)|*.oet|All Files (*.*)|*.* ";
 
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
@@ -976,6 +1022,13 @@ namespace OET_UI
                     BinaryFormatter formatter = new BinaryFormatter();
                     GD = (GlobalDocument)formatter.Deserialize(stream);
                     GD.ExportFolder = GD.ExportFolder = string.IsNullOrWhiteSpace(GD.ExportFolder) ? GD.FolderName : GD.ExportFolder;
+
+                    undoStack.Clear();
+                    redoStack.Clear();
+                    undoStack.Push(GD.SnapShot());
+                    redoStack.Push(GD.SnapShot());
+
+
                     stream.Close();
                     ZoomExtent();
                     this.Text = "OET " + GD.FileNameWithoutPath;
@@ -997,15 +1050,51 @@ namespace OET_UI
                     SaveCommand();
                     PrepareUI();
                     GD = new GlobalDocument();
+                    undoStack.Clear();
+                    redoStack.Clear();
+                    undoStack.Push(GD.SnapShot());
+                    redoStack.Push(GD.SnapShot());
                     this.Text = "OET " + GD.FileNameWithoutPath;
                 }
                 else if (result == DialogResult.No)
                 {
                     PrepareUI();
                     GD = new GlobalDocument();
+                    undoStack.Clear();
+                    redoStack.Clear();
+                    undoStack.Push(GD.SnapShot());
+                    redoStack.Push(GD.SnapShot());
                     this.Text = "OET " + GD.FileNameWithoutPath;
                 }
             }
+        }
+
+        private void UndoCommand()
+        {
+            if (undoStack.Count > 1)
+            {
+                redoStack.Push(undoStack.Pop().SnapShot());
+                GD = undoStack.Peek();
+            }
+            canvas.Invalidate();
+        }
+
+        private void RedoCommand()
+        {
+            if (redoStack.Count > 1)
+            {
+                GD = redoStack.Peek();
+                undoStack.Push(redoStack.Pop().SnapShot());
+            }
+            canvas.Invalidate();
+        }
+
+        private void ClearStacks()
+        {
+            undoStack.Clear();
+            redoStack.Clear();
+            undoStack.Push(GD.SnapShot());
+            redoStack.Push(GD.SnapShot());
         }
 
         private void ExportCommand()
@@ -1026,53 +1115,85 @@ namespace OET_UI
                 else
                     GD.ExportFolder = GD.FolderName;
             }
+
+            if (GD.ExportFolder != null)
+            {
                 GD.GenerateInputMesh();
                 GD.GenerateInputBoundary();
                 GD.GenerateNodeThicknes();
                 GD.GenerateGnuPlotData();
 
-            Task plottask = Task.Factory.StartNew(() => GnuPlotStartCommand());
+                Task plottask = Task.Factory.StartNew(() => GnuPlotStartCommand());
+            }
+
         }
 
         private void OLMStartCommand()
         {
-            string olm = @"C:\Users\ozgun\Desktop\OneDrive\OET\OET\OLM\olm\olm\Release\olm.exe";
-            //int exitCode;
-            ProcessStartInfo processInfo;
-            Process process;
+            try
+            {
+                //int exitCode;
+                ProcessStartInfo processInfo;
+                Process process;
 
-            processInfo = new ProcessStartInfo(olm);
-            processInfo.WorkingDirectory = Path.GetDirectoryName(olm);
+                processInfo = new ProcessStartInfo(olmPath);
+                processInfo.WorkingDirectory = Path.GetDirectoryName(olmPath);
 
-            process = Process.Start(processInfo);
-            process.WaitForExit();
+                process = Process.Start(processInfo);
+                process.WaitForExit();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+                //DialogResult = (MessageBox.Show(" Would you like to find file specified ? ", e.Message, MessageBoxButtons.YesNo));
+                //if (DialogResult == DialogResult.Yes)
+                //{
+                //    OpenFileDialog ofd = new OpenFileDialog();
+                //    if (ofd.ShowDialog() == DialogResult.OK)
+                //    {
+                //        olmPath = ofd.FileName;
+                //    }
+                //    OLMStartCommand();
+                //} 
+            }
         }
 
         private void GnuPlotStartCommand()
         {
-            string command = "";
-            frmGnuPlotInput frm = new frmGnuPlotInput();
-            if (frm.ShowDialog() == DialogResult.OK)
+            try
             {
-                command = frm.Command;
+                string command = "";
+                frmGnuPlotInput frm = new frmGnuPlotInput();
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    command = frm.Command;
+                    Process extPro = new Process();
+                    extPro.StartInfo.FileName = gnuPlotPath;
+                    extPro.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    extPro.StartInfo.CreateNoWindow = true;
+                    extPro.StartInfo.UseShellExecute = false;
+                    extPro.StartInfo.RedirectStandardInput = true;
+                    extPro.Start();
 
-            string Pgm = @"C:\Program Files\gnuplot\bin\gnuplot.exe";
-            //string Pgm = @"C:\Program Files (x86)\gnuplot\bin\gnuplot.exe";
-            Process extPro = new Process();
-            extPro.StartInfo.FileName = Pgm;
-            extPro.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            extPro.StartInfo.CreateNoWindow = true;
-            extPro.StartInfo.UseShellExecute = false;
-            extPro.StartInfo.RedirectStandardInput = true;
-            extPro.Start();
-
-            StreamWriter gnupStWr = extPro.StandardInput;
-            gnupStWr.WriteLine("plot '" + GD.ExportFolder + "\\" + GD.FileNameWithoutPath + @".plotData.dat'" + " " +command +"");
-            gnupStWr.Flush();
-            extPro.WaitForExit();
-
-                // GnuPlot.Plot(GD.ExportFolder + "\\" + GD.FileNameWithoutPath + @".plotData.dat", "w l lc var");
+                    StreamWriter gnupStWr = extPro.StandardInput;
+                    gnupStWr.WriteLine("plot '" + GD.ExportFolder + "\\" + GD.FileNameWithoutPath + @".plotData.dat'" + " " + command + "");
+                    gnupStWr.Flush();
+                    extPro.WaitForExit();
+                    // GnuPlot.Plot(GD.ExportFolder + "\\" + GD.FileNameWithoutPath + @".plotData.dat", "w l lc var");
+                }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+                //DialogResult = (MessageBox.Show(" Would you like to find file specified ? ", e.Message, MessageBoxButtons.YesNo));
+                //if (DialogResult == DialogResult.OK)
+                //{
+                //    OpenFileDialog ofd = new OpenFileDialog();
+                //    gnuPlotPath = ofd.FileName;
+                //    OLMStartCommand();
+                //}
+            }
+
         }
 
         private void Mesh()
@@ -1082,6 +1203,10 @@ namespace OET_UI
             Engine.GenerateNodesByEntity(GD);
             Engine.GenerateFramesByNodes(GD);
             FillStatus();
+            undoStack.Clear();
+            redoStack.Clear();
+            undoStack.Push(GD.SnapShot());
+            redoStack.Push(GD.SnapShot());
         }
 
         private void FillStatus()
@@ -1127,40 +1252,49 @@ namespace OET_UI
                     case (Keys.M):
                         MoveCommand();
                         break;
+                    case (Keys.Z):
+                        UndoCommand();
+                        break;
+                    case (Keys.Y):
+                        RedoCommand();
+                        break;
                     case (Keys.A):
-                        action = eAction.idle;
-                        GD.Entities.ForEach(x => x.Selected = true);
+                        SelectAllCommand();
                         break;
                 }
             }
-            switch (e.KeyCode)
+            else
             {
-                case Keys.S:
-                    action = eAction.draw;
-                    drawingObject = eDrawingObject.segment;
-                    StartSegmentForm();
-                    break;
-                case Keys.A:
-                    action = eAction.draw;
-                    drawingObject = eDrawingObject.Area;
-                    StartAreaForm();
-                    break;
-                case Keys.D:
-                    action = eAction.draw;
-                    drawingObject = eDrawingObject.Dot;
-                    StartDotForm();
-                    break;
-                case Keys.Z:
-                    action = eAction.idle;
-                    drawingObject = eDrawingObject.zoombox;
-                    ZoomWithRectangle();
-                    break;
-                case Keys.Escape:
-                    EscapeCommand();
-                    break;
-                case Keys.Delete:
-                    GD.Entities.RemoveAll(x => x.Selected == true);
-                    break;
+                switch (e.KeyCode)
+                {
+                    case Keys.S:
+                        action = eAction.draw;
+                        drawingObject = eDrawingObject.segment;
+                        StartSegmentForm();
+                        break;
+                    case Keys.A:
+                        action = eAction.draw;
+                        drawingObject = eDrawingObject.Area;
+                        StartAreaForm();
+                        break;
+                    case Keys.D:
+                        action = eAction.draw;
+                        drawingObject = eDrawingObject.Dot;
+                        StartDotForm();
+                        break;
+                    case Keys.Z:
+                        action = eAction.idle;
+                        drawingObject = eDrawingObject.zoombox;
+                        canvas.Cursor = Cursors.Help;
+                        ZoomWithRectangle();
+                        break;
+                    case Keys.Escape:
+                        EscapeCommand();
+                        break;
+                    case Keys.Delete:
+                        DeleteCommand();
+                        break;
+                }
             }
 
             canvas.Invalidate();
@@ -1205,7 +1339,7 @@ namespace OET_UI
                 canvas.Invalidate();
             }
             // move Entity
-            else if (e.Button == MouseButtons.Left && action == eAction.idle && objectOver == eObjectOver.overCorner )
+            else if (e.Button == MouseButtons.Left && action == eAction.edit && objectOver == eObjectOver.overCorner )
             {
                 foreach (IEntity entity in GD.Entities.FindAll(x => x.Points.Contains(hitCoord)))
                 {
@@ -1228,7 +1362,7 @@ namespace OET_UI
             }
             else if (e.Button == MouseButtons.Left && action == eAction.idle && drawingObject == eDrawingObject.zoombox)
             {
-                cursor = Cursors.UpArrow;
+                cursor = Cursors.Help;
                 using (Pen select_pen = new Pen(Color.Green))
                 {
                     select_pen.DashStyle = DashStyle.Dash;
@@ -1271,10 +1405,9 @@ namespace OET_UI
             {
                 canvas.Cursor = Cursors.Cross;
                 ModifyPoint(ref mousePos, chkSnapGrid.Checked, chkSnapPoint.Checked, e);
-
                 canvas.Invalidate();
             }
-         }
+        }
 
         private void Canvas_MouseDown(object sender, MouseEventArgs e)
         {
@@ -1317,6 +1450,10 @@ namespace OET_UI
                     AddDot(pt);
                 }
             }
+            if (e.Button == MouseButtons.Left && action == eAction.idle && objectOver== eObjectOver.overCorner)
+            {
+                action = eAction.edit;
+            }
         }
 
         private void Canvas_MouseUp(object sender, MouseEventArgs e)
@@ -1325,7 +1462,8 @@ namespace OET_UI
                 drawingObject != eDrawingObject.zoombox)
             {
                 drawingObject = eDrawingObject.nothing;
-                SelectPointsWithRectangle();           
+                SelectPointsWithRectangle();
+                canvas.Cursor = Cursors.Arrow;
             }
             else if (drawingObject == eDrawingObject.zoombox && e.Button != MouseButtons.Middle)
             {
@@ -1333,12 +1471,16 @@ namespace OET_UI
                 zoomRectangle.Width = 0;
                 zoomRectangle.Height = 0;
             }
-            cursor = Cursors.Arrow;
+            else if (action == eAction.edit)
+            {
+                action = eAction.idle;
+                undoStack.Push(GD.SnapShot());
+            }
+            //cursor = Cursors.Arrow;
             if (canvas.Cursor != cursor)
             {
                 canvas.Cursor = cursor;
             }
-
             canvas.Invalidate();
         }
 
@@ -1351,10 +1493,11 @@ namespace OET_UI
                 {
                     if (hitEntity.Selected == false)
                     {
-                        selectedCount = GD.Entities.FindAll(x => x.Selected == true).Count;
                         hitEntity.Selected = true;
+                        selectedCount = GD.Entities.FindAll(x => x.Selected == true).Count;
                     }
                 }
+
             }
             else if ((ModifierKeys & Keys.Control) == Keys.Control && e.Button == MouseButtons.Left)
             {           
@@ -1370,6 +1513,7 @@ namespace OET_UI
                         selectedCount = GD.Entities.FindAll(x => x.Selected == true).Count;
                     }
                 }
+
             }
             else if (e.Button == MouseButtons.Left && action == eAction.idle && objectOver != eObjectOver.nothing)
             {
@@ -1385,6 +1529,7 @@ namespace OET_UI
                     hitEntity.Selected = true;
                     selectedCount = GD.Entities.FindAll(x => x.Selected == true).Count;
                 }
+
             }
             if (e.Button == MouseButtons.Right)
             {
@@ -1392,6 +1537,7 @@ namespace OET_UI
                 action = eAction.idle;
                 if (newArea.Points.Count > 2)
                     GD.Entities.Add(newArea);
+                undoStack.Push(GD.SnapShot());
 
                 foreach (var entity in GD.Entities.FindAll(x => x.Selected == true))
                 {
@@ -1407,25 +1553,18 @@ namespace OET_UI
                 newDot = new Dot(new Point());
                 if (frmEntityProp!=null)
                    frmEntityProp.Close();
+
             }
         }
 
         private void Canvas_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            //zoom extent
             if (e.Button == MouseButtons.Middle)
             {
                 ZoomExtent();
             }
-            if (e.Button == MouseButtons.Left && action == eAction.idle && objectOver == eObjectOver.overArea)
-            {
-                startEntityEditForm();
-            }
-            else if (e.Button == MouseButtons.Left && action == eAction.idle && objectOver == eObjectOver.overSegment)
-            {
-                startEntityEditForm();
-            }
-            else if (e.Button == MouseButtons.Left && action == eAction.idle && objectOver == eObjectOver.overDot)
+            if (e.Button == MouseButtons.Left && action == eAction.idle && 
+                (objectOver == eObjectOver.overArea ||objectOver == eObjectOver.overSegment || objectOver == eObjectOver.overDot))
             {
                 startEntityEditForm();
             }
@@ -1434,7 +1573,10 @@ namespace OET_UI
 
         private void Canvas_Resize(object sender, EventArgs e)
         {
-            ZoomExtent();
+            if (!(WindowState == FormWindowState.Minimized))
+            {
+                ZoomExtent();
+            }
             canvas.Invalidate() ;
         }
 
@@ -1442,13 +1584,13 @@ namespace OET_UI
         {
             float oldzoom = zoom;
 
-            if (e.Delta > 0 /*&& zoom < maxzoom*/)
+            if (e.Delta > 0)
             {
-                zoom += 0.1f /*/ Math.Max(GD.GridHeight,GD.GridWidth)*/;
+                zoom *= (1.1f); 
             }
-            if (e.Delta < 0 && zoom > minzoom)
+            else if (e.Delta < 0 && zoom > minzoom)
             {
-                zoom -= 0.1f /*/ Math.Max(GD.GridHeight, GD.GridWidth)*/;
+                zoom /= (1.1f);
             }
 
             Point mousePosNow = e.Location;
@@ -1465,7 +1607,7 @@ namespace OET_UI
             curX = newimagex - oldimagex + curX;  // Where to move image to keep focus on one point
             curY = newimagey - oldimagey + curY;
 
-            if (zoom <= maxzoom && zoom >= minzoom)
+            if (zoom >= minzoom)
             {
                 canvas.Invalidate();
             }
@@ -1501,6 +1643,7 @@ namespace OET_UI
         {
             GD.Entities.RemoveAll(x => x.Selected == true);
             canvas.Invalidate();
+            undoStack.Push(GD.SnapShot());
         }
 
         private void BtnTsMove_Click(object sender, EventArgs e)
@@ -1538,27 +1681,27 @@ namespace OET_UI
                 GD.GridSize = gridSettings.GridSize;
                 GD.GridHeight = gridSettings.GridHeight;
                 GD.GridWidth = gridSettings.GridWidth;
-                ZoomExtent();
+                //ZoomExtent();
             }
         }
 
         private void BtnTsZoomExtent_Click(object sender, EventArgs e)
         {
-            ZoomExtent();
+            if (!(WindowState == FormWindowState.Minimized))
+            {
+                ZoomExtent();
+            }
             canvas.Invalidate();
         }
 
         private void BtnTsZoomOut_Click(object sender, EventArgs e)
         {
-            var oldzoom = zoom;
+            float oldzoom = zoom;
 
-            if (zoom > minzoom)
-            {
-                zoom -= 0.2f;
-            }
+            zoom /= (1.1f);
 
             float x = canvas.Width / 2 - canvas.Location.X;    // Where location of the mouse in the pictureframe
-            float y = canvas.Height /2  - canvas.Location.Y;
+            float y = canvas.Height / 2 - canvas.Location.Y;
 
             float oldimagex = (x / oldzoom);  // Where in the IMAGE is it now
             float oldimagey = (y / oldzoom);
@@ -1569,7 +1712,8 @@ namespace OET_UI
             curX = newimagex - oldimagex + curX;  // Where to move image to keep focus on one point
             curY = newimagey - oldimagey + curY;
 
-            if (zoom <= maxzoom && zoom >= minzoom)
+
+            if (zoom >= minzoom)
             {
                 canvas.Invalidate();
             }
@@ -1577,11 +1721,10 @@ namespace OET_UI
 
         private void BtnTsZoomIn_Click(object sender, EventArgs e)
         {
-            var oldzoom = zoom;
-            if (zoom < maxzoom)
-            {
-                zoom += 0.2f;
-            }
+            float oldzoom = zoom;
+
+            zoom *= (1.1f);
+
             float x = canvas.Width / 2  - canvas.Location.X;    // Where location of the mouse in the pictureframe
             float y = canvas.Height /2  - canvas.Location.Y;
 
@@ -1594,7 +1737,8 @@ namespace OET_UI
             curX = newimagex - oldimagex + curX;  // Where to move image to keep focus on one point
             curY = newimagey - oldimagey + curY;
 
-            if (zoom <= maxzoom && zoom >= minzoom)
+
+            if (zoom >= minzoom)
             {
                 canvas.Invalidate();
             }
@@ -1603,11 +1747,13 @@ namespace OET_UI
         private void BtnTsZoomRectangle_Click(object sender, EventArgs e)
         {
             drawingObject = eDrawingObject.zoombox;
+            canvas.Cursor = Cursors.Help;
         }
 
         private void BtnTsPan_Click(object sender, EventArgs e)
         {
             action = eAction.pan;
+            canvas.Cursor = Cursors.SizeAll;
         }
 
         private void BtnTsAbout_Click(object sender, EventArgs e)
@@ -1640,6 +1786,16 @@ namespace OET_UI
             //t.Start();
         }
 
+        private void BtnTsUndo_Click(object sender, EventArgs e)
+        {
+            UndoCommand();
+        }
+
+        private void BtnTsRedo_Click(object sender, EventArgs e)
+        {
+            RedoCommand();
+        }
+
         private void CmbUnits_SelectedIndexChanged(object sender, EventArgs e)
         {
             GD.Unit = (eUnit)cmbUnits.SelectedIndex;
@@ -1647,7 +1803,16 @@ namespace OET_UI
 
         private void Canvas_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.SmoothingMode = SmoothingMode.HighSpeed;
+            if (undoStack.Count == 1)
+                btnTsUndo.Enabled = false;
+            else
+                btnTsUndo.Enabled = true;
+            if (redoStack.Count == 1)
+                btnTsRedo.Enabled = false;
+            else
+                btnTsRedo.Enabled = true;
+
+            e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
             var g = e.Graphics;
 
             width = canvas.ClientSize.Width;

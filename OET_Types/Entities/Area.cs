@@ -101,6 +101,20 @@ namespace OET_Types.Entities
             }
         }
 
+        public IEntity Clone()
+        {
+            Area _cloned = (Area)this.MemberwiseClone();
+            if (this._points != null)
+            {
+                _cloned.Points = new List<PointF>();
+                for (int i = 0; i < this._points.Count; i++)
+                {
+                    _cloned.Points.Add(this._points[i]);
+                }
+            }
+            return _cloned;
+        }
+
         #endregion
 
     }

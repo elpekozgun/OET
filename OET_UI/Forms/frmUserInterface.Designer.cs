@@ -133,7 +133,7 @@
             // toolStripContainer1.ContentPanel
             // 
             this.toolStripContainer1.ContentPanel.Controls.Add(this.toolStrip1);
-            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(887, 10);
+            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(887, 35);
             this.toolStripContainer1.Location = new System.Drawing.Point(4, 0);
             this.toolStripContainer1.Name = "toolStripContainer1";
             this.toolStripContainer1.Size = new System.Drawing.Size(887, 35);

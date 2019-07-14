@@ -31,7 +31,7 @@ namespace OET_Types.Elements
 
         public GlobalDocument()
         {
-            _nod            = 0.5f;                     
+            _nod            = 0.3f;                     
             _gridSize       = 10;
             _meshSize       = 10f;
             _horizon        = 14.2f;
@@ -39,10 +39,10 @@ namespace OET_Types.Elements
             _gridHeight     = 100;
             _unitType       = eUnit.kN_m;
 
-            _listOfNodes    = new List<Node>();
-            _listOfFrames   = new List<IElement>();
-            _listOfEntities = new List<IEntity>();
-            _bigPolygon     = new Polygon();
+            _listOfNodes        = new List<Node>();
+            _listOfFrames       = new List<IElement>();
+            _listOfEntities     = new List<IEntity>();
+            _bigPolygon         = new Polygon();
         }
         //serialize Constructur
         public GlobalDocument(SerializationInfo info, StreamingContext context)
@@ -56,10 +56,11 @@ namespace OET_Types.Elements
             _fileName       = (string)info.GetValue("filename", typeof(string));
             _folderName     = (string)info.GetValue("foldername", typeof(string));
             _exportFolder   = (string)info.GetValue("exportfolder", typeof(string));
+            _unitType           = (eUnit)info.GetValue("unit", typeof(eUnit));
 
-            _listOfNodes = (List<Node>)info.GetValue("nodes", typeof(List<Node>));
-            _listOfFrames   = (List<IElement>)info.GetValue("frames", typeof(List<IElement>));
-            _listOfEntities = (List<IEntity>)info.GetValue("entities", typeof(List<IEntity>));
+            _listOfNodes        = (List<Node>)info.GetValue("nodes", typeof(List<Node>));
+            _listOfFrames       = (List<IElement>)info.GetValue("frames", typeof(List<IElement>));
+            _listOfEntities     = (List<IEntity>)info.GetValue("entities", typeof(List<IEntity>));
         }
         
         #endregion
@@ -238,6 +239,8 @@ namespace OET_Types.Elements
                 _listOfEntities = value;
             }
         }
+        //public List<Node>       SteelNodes { get => _listOfSteelNodes; set => _listOfSteelNodes = value; }
+        //public List<IElement>   SteelFrames { get => _listOfSteelFrames; set => _listOfSteelFrames = value; }
 
         public string FileName
         {
@@ -307,6 +310,7 @@ namespace OET_Types.Elements
                     return 1;
             }
         }
+
 
         #endregion
 
@@ -438,7 +442,57 @@ namespace OET_Types.Elements
             info.AddValue("nodes", Nodes);
             info.AddValue("frames", Frames);
             info.AddValue("entities", Entities);
+        }
 
+        //public GlobalDocument Clone()
+        //{
+        //    GlobalDocument _cloned = (GlobalDocument)this.MemberwiseClone();
+        //    _cloned._listOfEntities = new List<IEntity>();
+        //    _cloned._listOfFrames = new List<IElement>();
+        //    _cloned._listOfNodes = new List<Node>();
+
+        //    if (_listOfEntities != null)
+        //    {
+        //        _cloned._listOfEntities = new List<IEntity>();
+        //        for (int i = 0; i < _listOfEntities.Count; i++)
+        //        {
+        //            _cloned._listOfEntities.Add(_listOfEntities[i].Clone());
+        //        }
+        //    }
+        //    if (_listOfFrames != null)
+        //    {
+        //        _cloned._listOfFrames = new List<IElement>();
+        //        for (int i = 0; i < _listOfFrames.Count; i++)
+        //        {
+        //            _cloned._listOfFrames.Add(_listOfFrames[i]);
+        //        }
+        //    }
+        //    if (_listOfNodes != null)
+        //    {
+        //        _cloned._listOfNodes = new List<Node>();
+        //        for (int i = 0; i < _listOfNodes.Count; i++)
+        //        {
+        //            _cloned._listOfNodes.Add(_listOfNodes[i]);
+        //        }
+        //    }
+
+        //    return _cloned;
+        //}
+
+        public GlobalDocument SnapShot()
+        {
+            GlobalDocument _cloned = (GlobalDocument)this.MemberwiseClone();
+
+            if (_listOfEntities != null)
+            {
+                _cloned.Entities = new List<IEntity>();
+                for (int i = 0; i < _listOfEntities.Count; i++)
+                {
+                    _cloned.Entities.Add(_listOfEntities[i].Clone());
+                }
+            }
+            
+            return _cloned;
         }
 
         #endregion

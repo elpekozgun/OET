@@ -22,5 +22,6 @@ namespace OET_Types.Entities
         bool            Selected    { get; set; }
         eEntityType     EntityType  { get; }
         Color           Color       { get; set; }
+        IEntity         Clone();
     }
 }

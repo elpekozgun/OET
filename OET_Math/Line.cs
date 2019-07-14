@@ -132,7 +132,7 @@ namespace OET_Math
 
                 // Find the point on (x1,y1)-(x2,y2) that is closest to (x,y)
 
-                double tmp = (pPerp.y - b) * m + pPerp.x;
+                 double tmp = (pPerp.y - b) * m + pPerp.x;
                 pDrop.x = tmp / (m * m + 1);
                 pDrop.y = m * pDrop.x + b;
             }
@@ -160,6 +160,7 @@ namespace OET_Math
             else return false;
 
         }
+
 
         public void SortPoints()
         {

@@ -23,7 +23,6 @@ namespace OET_Types.Elements
             m_material  =   material;
             m_segmentIDList = new List<int>();
             m_areaIDList = new List<int>();
-
         }
 
         public Node(float x, float y,eMaterial material)
@@ -45,7 +44,6 @@ namespace OET_Types.Elements
         private byte            m_rebarCount;
         private float           m_rebarSize;
         private eMaterial       m_material;
-        private eNodeLocation   m_NodeLocation;
         private List<int>       m_segmentIDList;
         private List<int>       m_areaIDList;
 
@@ -89,19 +87,6 @@ namespace OET_Types.Elements
             set
             {
                 m_material = value;
-            }
-        }
-
-        public eNodeLocation NodeLocation
-        {
-            get
-            {
-                return m_NodeLocation;
-            }
-
-            set
-            {
-                m_NodeLocation = value;
             }
         }
 
@@ -176,6 +161,7 @@ namespace OET_Types.Elements
                 m_areaIDList = value;
             }
         }
+
 
         #endregion
 

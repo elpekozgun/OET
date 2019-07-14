@@ -143,6 +143,21 @@ namespace OET_Types.Entities
             }
         }
 
+        public IEntity Clone()
+        {
+            Dot _cloned = (Dot)this.MemberwiseClone();
+            _cloned._points = new List<PointF>();
+            if (this._points != null)
+            {
+                for (int i = 0; i < this._points.Count; i++)
+                {
+                    _cloned.Points.Add(this._points[i]);
+                }
+            }
+            return _cloned;
+        }
+
+
         #endregion
     }
 }

@@ -91,7 +91,6 @@ namespace OET_Types.Entities
                 _size = value;
             }
         }
-
         public Color Color
         {
             get
@@ -103,6 +102,20 @@ namespace OET_Types.Entities
             {
                 _color = value;
             }
+        }
+
+        IEntity IEntity.Clone()
+        {
+            Segment _cloned = (Segment)this.MemberwiseClone();
+            _cloned._points = new List<PointF>();
+            if (this._points != null)
+            {
+                for (int i = 0; i < this._points.Count; i++)
+                {
+                    _cloned.Points.Add(this._points[i]);
+                }
+            }
+            return _cloned;
         }
 
 
