@@ -3,7 +3,7 @@
 
 
 <p align="center">
-  <img src="https://github.com/elpekozgun/OET/blob/master/oet1.PNG" alt="drawing" width="512"/>
+  <img src="https://github.com/elpekozgun/OET/blob/master/oet1.PNG" alt="drawing" width="720"/>
 </p>
 
 
