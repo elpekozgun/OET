@@ -3,7 +3,7 @@
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/elpekozgun/RayTracer/master/RayTracer/samples/1.PNG" alt="drawing" width="512"/>
+  <img src="https://github.com/elpekozgun/OET/blob/master/oet1.PNG" alt="drawing" width="512"/>
 </p>
 
 
@@ -20,6 +20,7 @@
  ## Mesh Elements
 **-Nodes:**
      Nodes are the main elements used in 2D frame object creation. They have 2 different material type, concrete and steel. They contain information on their thickness, rebar size, and rebar count. Depending on these properties, nodes are used to create different types of frame elements. Nodes also contain the load information.
+     
 **-Frames:**
      There are 2 different type of frames namely concrete and steel. They are obtained comparing the materials of the 2 node that are created from. If material of both nodes is steel, then the generated frame element will be a reinforcement bar, if any of the materials is concrete, then the generated frame will be a concrete element. If both nodes have different type of material, the modulus of elasticity of concrete frame is interpolated linearly.
 Nodes have reinforcement bar count, reinforcement bar size, and thickness properties on them as well. Nodes are assumed to be reside in concrete always, thus they always have a thickness property present. However, there are cases where in 2D a Node can lie in a location such that, for example a T shaped beam, it may have a Y value right at the connection of Stub and head of T shape. In this case the thickness of the node is interpolated using these 2 different thickness values. Reinforcement bar count, and size is only in importance if nodes that create the frame are both steel. Below figures shows the concept of frame generations explained in this section.
