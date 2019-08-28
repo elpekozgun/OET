@@ -7,7 +7,7 @@
 </p>
 
 
- In order to get accurate results from simulation and modeling problems, the inputs of the problems should be well defined and prepared. However, generating inputs on some problem types can be a cumbersome task to do efficiently in terms of time and performance. There are even times where preparing a proper configuration take more time than solving the problem itself. To eliminate this roadblock, I made the program called OET to generate inputs for OLM solver program which was programmed by an Instructor on my BS department that I respect a lot. OET is a program that uses a graphical interface where user can draw CAD based objects in 2D environment and prepare a meshed configuration with loading and supports included. OET mesher includes GNUPlot integration, which is the number one choice in scientific program visualization.
+ In order to get accurate results from simulation and modeling problems, the inputs of the problems should be well defined and prepared. However, generating inputs on some problem types can be a cumbersome task to do efficiently in terms of time and performance. There are even times where preparing a proper configuration take more time than solving the problem itself. To eliminate this roadblock, I made the program called OET to generate inputs for "OLM solver" program which was programmed by an Instructor on my BS department that I respect a lot. OET is a program that uses a graphical interface where user can draw CAD based objects in 2D environment and prepare a meshed configuration with loading and supports included. OET mesher includes GNUPlot integration, which is the number one choice in scientific program visualization.
  
  ## Mesher Tool
  
@@ -41,5 +41,5 @@ Nodes have reinforcement bar count, reinforcement bar size, and thickness proper
     -Apply point loads in X, Y direction.
     -Assign support or constraints.
     
-**-GnuPlot** is a copyrighted but freely distributed cross platform go-to application for visualizing simulation and scientific data. OET application outputs are arranged and generated in a way that they can be run on GNUPlot without problems. GnuPlot in this research is used to visualize the outputs of the OET mesher, and also for the test results. GNUPlot is integrated inside OET mesher so that the outputs can be run directly using the OET mesher tool.
+**GnuPlot** is a copyrighted but freely distributed cross platform go-to application for visualizing simulation and scientific data. OET application outputs are arranged and generated in a way that they can be run on GNUPlot without problems. GnuPlot in this research is used to visualize the outputs of the OET mesher, and also for the test results. GNUPlot is integrated inside OET mesher so that the outputs can be run directly using the OET mesher tool.
     
