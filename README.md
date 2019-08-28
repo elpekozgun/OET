@@ -42,7 +42,7 @@ Nodes have reinforcement bar count, reinforcement bar size, and thickness proper
     -Assign support or constraints.
     
 <p align="center">
-  <img src="https://github.com/elpekozgun/OET/blob/master/oet2.PNG" alt="drawing" width="720"/>
+  <img src="https://github.com/elpekozgun/OET/blob/master/oet2.png" alt="drawing" width="512"/>
 </p>
     
 **GnuPlot** is a copyrighted but freely distributed cross platform go-to application for visualizing simulation and scientific data. OET application outputs are arranged and generated in a way that they can be run on GNUPlot without problems. GnuPlot in this research is used to visualize the outputs of the OET mesher, and also for the test results. GNUPlot is integrated inside OET mesher so that the outputs can be run directly using the OET mesher tool.
